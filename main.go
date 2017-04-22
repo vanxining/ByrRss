@@ -13,10 +13,25 @@ const (
 
 var (
 	myHost = []byte("https://byr.zeegg.com")
+	search = [][]byte{
+		[]byte(` src="/`),
+		[]byte(` href="/att/`),
+		[]byte(`byr.zeegg.com/#!`),
+	}
+	replace = [][]byte{
+		[]byte(` src="` + host + "/"),
+		[]byte(` href="` + host + "/att/"),
+		[]byte(`byr.zeegg.com/`),
+	}
 )
 
-func replace(raw []byte) []byte {
+func modifyPage(raw []byte) []byte {
 	raw = bytes.Replace(raw, []byte(host), myHost, -1)
+
+	for index := range search {
+		raw = bytes.Replace(raw, search[index], replace[index], -1)
+	}
+
 	return raw
 }
 
@@ -48,7 +63,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	raw = replace(raw)
+	raw = modifyPage(raw)
 	_, err = w.Write(raw)
 	if err != nil {
 		log.Print(err)
