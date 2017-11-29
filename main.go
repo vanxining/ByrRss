@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"crypto/tls"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -13,6 +14,9 @@ const (
 
 var (
 	myHost = []byte("https://byr.zeegg.com")
+	tr = &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
 	search = [][]byte{
 		[]byte(` src="/`),
 		[]byte(` href="/att/`),
@@ -42,7 +46,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var client http.Client
+	client := http.Client{Transport: tr}
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Print(err)
